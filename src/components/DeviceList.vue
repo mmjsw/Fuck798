@@ -121,11 +121,7 @@ const cancelEditRemark = () => {
   editingRemark.value = '';
 };
 
-// 删除备注
-const deleteRemark = (deviceId: string) => {
-  delete remarks.value[deviceId];
-  saveRemarks();
-};
+
 
 // 自动刷新定时器
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -276,7 +272,7 @@ const startOrEnd = (did: string) => {
       <div class="hitokoto-container">
         <Hitokoto align="left" />
       </div>
-      <Button @click="loadDevices" :loading="refreshing" class="refresh-btn">
+      <Button @click="loadDevices()" :loading="refreshing" class="refresh-btn">
         刷新列表
       </Button>
     </div>
