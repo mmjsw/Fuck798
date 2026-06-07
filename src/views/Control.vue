@@ -100,7 +100,7 @@ const base_url = getBaseUrl();
 
 .footer-line1 {
   font-size: 13px;
-  color: black;
+  color: #8B0000;
   margin: 0 0 8px 0;
 }
 

@@ -334,7 +334,7 @@ const login = () => {
 
 .footer-line1 {
   font-size: 13px;
-  color: black;
+  color: #8B0000;
   margin: 0 0 6px 0;
 }
 

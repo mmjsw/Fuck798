@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Button } from 'ant-design-vue';
-import { PoweroffOutlined, ThunderboltOutlined } from '@ant-design/icons-vue';
+import { PoweroffOutlined, ThunderboltOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { deserializeFromLocalStorage } from '../utils/Serializable';
 import router from '../router';
-import { VueDraggable } from 'vue-draggable-plus';
 import Hitokoto from './Hitokoto.vue';
 
 interface Device {
@@ -70,51 +69,90 @@ const isRunning = ref<DeviceStatus[]>([]);
 const loading = ref(false);
 const refreshing = ref(false);
 
+// 备注相关
+const remarks = ref<Record<string, string>>({});
+const editingDeviceId = ref<string | null>(null);
+const editingRemark = ref('');
+
+// 加载备注从 localStorage
+const loadRemarks = () => {
+  const saved = localStorage.getItem('deviceRemarks');
+  if (saved) {
+    try {
+      remarks.value = JSON.parse(saved);
+    } catch {
+      remarks.value = {};
+    }
+  }
+};
+
+// 保存备注到 localStorage
+const saveRemarks = () => {
+  localStorage.setItem('deviceRemarks', JSON.stringify(remarks.value));
+};
+
+// 获取设备备注
+const getDeviceRemark = (deviceId: string): string => {
+  return remarks.value[deviceId] || '';
+};
+
+// 检查是否有备注
+const hasRemark = (deviceId: string): boolean => {
+  return !!remarks.value[deviceId];
+};
+
+// 开始编辑备注
+const startEditRemark = (deviceId: string) => {
+  editingDeviceId.value = deviceId;
+  editingRemark.value = remarks.value[deviceId] || '';
+};
+
+// 保存备注
+const saveRemark = (deviceId: string) => {
+  remarks.value[deviceId] = editingRemark.value.trim();
+  saveRemarks();
+  editingDeviceId.value = null;
+  editingRemark.value = '';
+};
+
+// 取消编辑
+const cancelEditRemark = () => {
+  editingDeviceId.value = null;
+  editingRemark.value = '';
+};
+
+// 删除备注
+const deleteRemark = (deviceId: string) => {
+  delete remarks.value[deviceId];
+  saveRemarks();
+};
+
+// 自动刷新定时器
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
 onMounted(() => {
   loadDevices();
+  loadRemarks();
+  
+  // 每5秒自动刷新
+  refreshTimer = setInterval(() => {
+    if (!loading.value) {
+      loadDevices(false); // 不显示刷新按钮的加载状态
+    }
+  }, 5000);
 });
 
-// 保存设备顺序到 localStorage
-const saveDeviceOrder = (orderedDevices: Device[]) => {
-  const deviceOrder = orderedDevices.map(device => device.id);
-  localStorage.setItem('deviceOrder', JSON.stringify(deviceOrder));
-};
-
-// 从 localStorage 加载设备顺序
-const loadDeviceOrder = (allDevices: Device[]): Device[] => {
-  const savedOrder = localStorage.getItem('deviceOrder');
-  if (!savedOrder) {
-    return allDevices;
+onUnmounted(() => {
+  // 清理定时器
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
   }
-  
-  try {
-    const order: string[] = JSON.parse(savedOrder);
-    const orderMap = new Map(order.map((id, index) => [id, index]));
-    
-    // 按照保存的顺序排序
-    const sortedDevices = [...allDevices].sort((a, b) => {
-      const orderA = orderMap.get(a.id) ?? Infinity;
-      const orderB = orderMap.get(b.id) ?? Infinity;
-      return orderA - orderB;
-    });
-    
-    // 如果有新的设备（不在保存的顺序中），将其放到最后
-    const sortedWithNewDevices = sortedDevices.filter(device => orderMap.has(device.id));
-    const newDevices = allDevices.filter(device => !orderMap.has(device.id));
-    
-    return [...sortedWithNewDevices, ...newDevices];
-  } catch {
-    return allDevices;
+});
+
+const loadDevices = (showRefreshState = true) => {
+  if (showRefreshState) {
+    refreshing.value = true;
   }
-};
-
-// 拖拽结束时保存新的顺序
-const onDragEnd = () => {
-  saveDeviceOrder(devices.value);
-};
-
-const loadDevices = () => {
-  refreshing.value = true;
   const data = localStorage.getItem('data');
   if (!data) {
     router.push('/');
@@ -142,7 +180,9 @@ const loadDevices = () => {
       }
     })
       .then(async (res) => {
-        refreshing.value = false;
+        if (showRefreshState) {
+          refreshing.value = false;
+        }
         const json = await res.json();
         if (json.code !== 0 || !json.data || !json.data.favos) {
           localStorage.removeItem('data');
@@ -150,18 +190,17 @@ const loadDevices = () => {
           router.push('/');
           return;
         }
-        
-        // 应用保存的设备顺序
-        const loadedDevices = loadDeviceOrder(json.data.favos);
-        devices.value = loadedDevices;
-        isRunning.value = loadedDevices.map((device: Device) => ({
+        devices.value = json.data.favos;
+        isRunning.value = json.data.favos.map((device: Device) => ({
           id: device.id,
           status: device.gene.status === 99
         }));
       })
       .catch(() => {
-        refreshing.value = false;
-        alert('获取设备列表失败');
+        if (showRefreshState) {
+          refreshing.value = false;
+          alert('获取设备列表失败');
+        }
       });
   }
 };
@@ -248,15 +287,8 @@ const startOrEnd = (did: string) => {
       <p class="empty-text">暂无设备</p>
     </div>
 
-    <!-- 设备卡片列表 - 可拖拽排序 -->
-    <VueDraggable
-      v-else
-      v-model="devices"
-      class="device-grid"
-      ghost-class="ghost-card"
-      :animation="200"
-      @end="onDragEnd"
-    >
+    <!-- 设备卡片列表 -->
+    <div v-else class="device-grid">
       <div
         v-for="device in devices"
         :key="device.id"
@@ -289,6 +321,37 @@ const startOrEnd = (did: string) => {
           </p>
         </div>
 
+        <!-- 备注显示 -->
+        <div class="device-remark">
+          <template v-if="editingDeviceId === device.id">
+            <div class="remark-edit">
+              <input
+                v-model="editingRemark"
+                type="text"
+                class="remark-input"
+                placeholder="输入备注名称"
+                @keyup.enter="saveRemark(device.id)"
+                @keyup.esc="cancelEditRemark"
+                autofocus
+              />
+              <div class="remark-actions">
+                <Button size="small" type="primary" @click="saveRemark(device.id)">保存</Button>
+                <Button size="small" @click="cancelEditRemark">取消</Button>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="remark-display" @click="startEditRemark(device.id)">
+              <span v-if="hasRemark(device.id)" class="remark-text">
+                【{{ getDeviceRemark(device.id) }}】
+              </span>
+              <span v-else class="remark-add">
+                <EditOutlined /> 添加备注
+              </span>
+            </div>
+          </template>
+        </div>
+
         <!-- 设备控制 -->
         <div class="device-action">
           <Button
@@ -306,7 +369,7 @@ const startOrEnd = (did: string) => {
           </Button>
         </div>
       </div>
-    </VueDraggable>
+    </div>
   </div>
 </template>
 
@@ -358,19 +421,11 @@ const startOrEnd = (did: string) => {
   margin: 0;
 }
 
-/* 设备卡片列表 - 可拖拽 */
+/* 设备卡片列表 */
 .device-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-/* 拖拽时的占位符样式 */
-.ghost-card {
-  opacity: 0.5;
-  background: #f0f9ff;
-  border: 2px dashed #1E90FF;
-  border-radius: 16px;
 }
 
 /* 设备卡片 */
@@ -380,16 +435,11 @@ const startOrEnd = (did: string) => {
   padding: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #f0f0f0;
-  cursor: grab;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.2s;
 }
 
 .device-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.device-card:active {
-  cursor: grabbing;
 }
 
 .device-card.device-inuse {
@@ -452,7 +502,7 @@ const startOrEnd = (did: string) => {
 
 /* 设备信息 */
 .device-info {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .device-name {
@@ -467,6 +517,61 @@ const startOrEnd = (did: string) => {
   color: #999;
   margin: 0;
   line-height: 1.4;
+}
+
+/* 备注 */
+.device-remark {
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-top: 1px dashed #f0f0f0;
+}
+
+.remark-display {
+  cursor: pointer;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+.remark-display:hover {
+  opacity: 0.7;
+}
+
+.remark-text {
+  color: #8A2BE2;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.remark-add {
+  color: #999;
+  font-size: 13px;
+}
+
+.remark-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.remark-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.remark-input:focus {
+  border-color: #8A2BE2;
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.1);
+}
+
+.remark-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 /* 设备控制 */
