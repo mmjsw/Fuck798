@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+﻿﻿<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Button } from 'ant-design-vue';
 import { PoweroffOutlined, ThunderboltOutlined, EditOutlined } from '@ant-design/icons-vue';

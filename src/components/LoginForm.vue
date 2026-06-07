@@ -312,6 +312,7 @@ const login = () => {
 
 .sms-btn {
   width: 80px;
+  height: 48px;
   border-radius: 10px;
   background: #1E90FF;
   border: none;

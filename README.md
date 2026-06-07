@@ -1,6 +1,6 @@
-# 去你的慧生活
+# Fuck798
 
-一个基于 Vue 3 + TypeScript + Vite 构建的智能设备 Web 控制面板，用于远程管理"慧生活"（iLife798）智能设备。
+一个基于 Vue 3 + TypeScript + Vite 构建的智能设备 Web 控制面板，用于远程管理智能设备。
 
 > **声明**：本项目仅用于学习和研究目的，所有数据均保存在浏览器本地，请放心使用。
 
@@ -37,7 +37,7 @@
 git clone <repository-url>
 
 # 进入项目目录
-cd fuck798_new
+cd Fuck798
 
 # 安装依赖
 npm install
@@ -70,7 +70,7 @@ npm run preview
 ## 项目结构
 
 ```
-fuck798_new/
+Fuck798/
 ├── public/               # 静态资源
 │   ├── fuck798.png       # 应用图标
 │   └── _redirects        # 部署重定向规则
