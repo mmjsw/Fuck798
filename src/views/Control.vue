@@ -2,6 +2,7 @@
 import { getBaseUrl } from '../utils/BaseURL';
 import DeviceList from '../components/DeviceList.vue';
 import LogoutBtn from '../components/LogoutBtn.vue';
+import { GithubOutlined } from '@ant-design/icons-vue';
 
 const base_url = getBaseUrl();
 </script>
@@ -25,6 +26,17 @@ const base_url = getBaseUrl();
     <main class="main-content">
       <DeviceList :base_url="base_url" />
     </main>
+
+    <!-- 底部页脚 -->
+    <footer class="control-footer">
+      <p class="footer-line1">所有数据均保存在浏览器，请放心使用</p>
+      <div class="footer-line2">
+        <span class="author-text">Created By MMJSW</span>
+        <a href="" target="_blank" class="github-link">
+          <GithubOutlined class="github-icon" />
+        </a>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -76,5 +88,46 @@ const base_url = getBaseUrl();
 .main-content {
   flex: 1;
   padding: 16px;
+}
+
+/* 底部页脚 */
+.control-footer {
+  text-align: center;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.footer-line1 {
+  font-size: 13px;
+  color: black;
+  margin: 0 0 8px 0;
+}
+
+.footer-line2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.author-text {
+  font-size: 13px;
+  color: #8A2BE2;
+}
+
+.github-link {
+  color: #8A2BE2;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.github-link:hover {
+  opacity: 0.8;
+}
+
+.github-icon {
+  font-size: 18px;
 }
 </style>

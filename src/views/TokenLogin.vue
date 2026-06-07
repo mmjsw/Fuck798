@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { GithubOutlined } from '@ant-design/icons-vue';
-import { getBaseUrl } from '../utils/BaseURL';
-import LoginForm from '../components/LoginForm.vue';
+import { Button, Input } from 'ant-design-vue';
+import { KeyOutlined, GithubOutlined } from '@ant-design/icons-vue';
+import { serializeToLocalStorage } from '../utils/Serializable';
+import router from '../router';
 
-const base_url = getBaseUrl();
-const s = Math.random();
-const r = new Date().getTime();
+const token = ref('');
+const loading = ref(false);
 
 const hitokotoText = ref('');
 const hitokotoFrom = ref('');
@@ -28,8 +28,48 @@ const fetchHitokoto = async () => {
 };
 
 onMounted(() => {
+  const data = localStorage.getItem('data');
+  if (data) {
+    router.push('/control');
+  }
   fetchHitokoto();
 });
+
+const handleTokenChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  token.value = target.value.trim();
+};
+
+const login = () => {
+  if (token.value.length === 0) {
+    alert('请输入Token');
+    return;
+  }
+
+  loading.value = true;
+
+  // 构造最小化的数据结构
+  const data = {
+    al: {
+      atype: 0,
+      dtype: 0,
+      eid: '',
+      oid: '',
+      stype: 0,
+      token: token.value,
+      uid: ''
+    },
+    ar: {
+      rids: [],
+      types: []
+    },
+    showAd: 0
+  };
+
+  serializeToLocalStorage('data', data);
+  loading.value = false;
+  router.push('/control');
+};
 </script>
 
 <template>
@@ -42,13 +82,48 @@ onMounted(() => {
           <div class="logo-container">
             <img src="/fuck798.png" alt="logo" class="logo" />
           </div>
-          <h1 class="title">去你的慧生活</h1>
-          <p class="subtitle">让工具成为工具</p>
+          <h1 class="title">Token 登录</h1>
+          <p class="subtitle">快速登录 · 无需验证码</p>
         </div>
 
         <!-- 表单 -->
         <div class="login-form-wrapper">
-          <LoginForm :base_url="base_url" :s="s" :r="r" />
+          <div class="login-form">
+            <!-- Token输入 -->
+            <div class="form-item">
+              <label class="form-label">Token</label>
+              <Input
+                v-model:value="token"
+                placeholder="请输入Token"
+                size="large"
+                class="custom-input"
+                @input="handleTokenChange"
+              >
+                <template #prefix>
+                  <KeyOutlined class="input-icon" />
+                </template>
+              </Input>
+              <p class="form-hint">请输入从APP抓包获取的Token</p>
+            </div>
+
+            <!-- 登录按钮 -->
+            <Button
+              type="primary"
+              size="large"
+              :disabled="token.length === 0"
+              :loading="loading"
+              @click="login"
+              class="login-btn"
+              block
+            >
+              登 录
+            </Button>
+
+            <!-- 返回验证码登录 -->
+            <div class="alternative-login">
+              <router-link to="/" class="link">返回验证码登录</router-link>
+            </div>
+          </div>
         </div>
 
         <!-- 每日一言 -->
@@ -133,6 +208,85 @@ onMounted(() => {
 /* 表单 */
 .login-form-wrapper {
   margin-bottom: 20px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-item {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: #999;
+  margin: 8px 0 0 0;
+}
+
+.custom-input {
+  border-radius: 10px;
+}
+
+:deep(.ant-input-affix-wrapper-lg) {
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+}
+
+:deep(.ant-input-affix-wrapper-lg:hover) {
+  border-color: #1E90FF;
+}
+
+:deep(.ant-input-affix-wrapper-lg:focus-within) {
+  border-color: #1E90FF;
+  box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.1);
+}
+
+.input-icon {
+  color: #1E90FF;
+  font-size: 16px;
+}
+
+.login-btn {
+  margin-top: 8px;
+  height: 48px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #1E90FF;
+  border: none;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: #1c86ee;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alternative-login {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.link {
+  font-size: 13px;
+  color: #1E90FF;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
 }
 
 /* 卡片内每日一言 */

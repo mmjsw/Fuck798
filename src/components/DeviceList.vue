@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue';
 import { Button } from 'ant-design-vue';
 import { PoweroffOutlined, ThunderboltOutlined } from '@ant-design/icons-vue';
-import { deserializeFromLocalStorage } from '../utils/Serializable';
+import { deserializeFromLocalStorage, serializeToLocalStorage } from '../utils/Serializable';
 import router from '../router';
+import { VueDraggable } from 'vue-draggable-plus';
+import Hitokoto from './Hitokoto.vue';
 
 interface Device {
   id: string;
@@ -72,6 +74,45 @@ onMounted(() => {
   loadDevices();
 });
 
+// 保存设备顺序到 localStorage
+const saveDeviceOrder = (orderedDevices: Device[]) => {
+  const deviceOrder = orderedDevices.map(device => device.id);
+  localStorage.setItem('deviceOrder', JSON.stringify(deviceOrder));
+};
+
+// 从 localStorage 加载设备顺序
+const loadDeviceOrder = (allDevices: Device[]): Device[] => {
+  const savedOrder = localStorage.getItem('deviceOrder');
+  if (!savedOrder) {
+    return allDevices;
+  }
+  
+  try {
+    const order: string[] = JSON.parse(savedOrder);
+    const orderMap = new Map(order.map((id, index) => [id, index]));
+    
+    // 按照保存的顺序排序
+    const sortedDevices = [...allDevices].sort((a, b) => {
+      const orderA = orderMap.get(a.id) ?? Infinity;
+      const orderB = orderMap.get(b.id) ?? Infinity;
+      return orderA - orderB;
+    });
+    
+    // 如果有新的设备（不在保存的顺序中），将其放到最后
+    const sortedWithNewDevices = sortedDevices.filter(device => orderMap.has(device.id));
+    const newDevices = allDevices.filter(device => !orderMap.has(device.id));
+    
+    return [...sortedWithNewDevices, ...newDevices];
+  } catch {
+    return allDevices;
+  }
+};
+
+// 拖拽结束时保存新的顺序
+const onDragEnd = () => {
+  saveDeviceOrder(devices.value);
+};
+
 const loadDevices = () => {
   refreshing.value = true;
   const data = localStorage.getItem('data');
@@ -103,13 +144,17 @@ const loadDevices = () => {
       .then(async (res) => {
         refreshing.value = false;
         const json = await res.json();
-        if (!json.data.favos) {
+        if (json.code !== 0 || !json.data || !json.data.favos) {
           localStorage.removeItem('data');
+          alert('Token无效或已过期，请重新登录');
           router.push('/');
           return;
         }
-        devices.value = json.data.favos;
-        isRunning.value = json.data.favos.map((device: Device) => ({
+        
+        // 应用保存的设备顺序
+        const loadedDevices = loadDeviceOrder(json.data.favos);
+        devices.value = loadedDevices;
+        isRunning.value = loadedDevices.map((device: Device) => ({
           id: device.id,
           status: device.gene.status === 99
         }));
@@ -187,8 +232,11 @@ const startOrEnd = (did: string) => {
 
 <template>
   <div class="device-list">
-    <!-- 刷新按钮 -->
+    <!-- 刷新按钮和每日一言 -->
     <div class="refresh-bar">
+      <div class="hitokoto-container">
+        <Hitokoto align="left" />
+      </div>
       <Button @click="loadDevices" :loading="refreshing" class="refresh-btn">
         刷新列表
       </Button>
@@ -200,13 +248,20 @@ const startOrEnd = (did: string) => {
       <p class="empty-text">暂无设备</p>
     </div>
 
-    <!-- 设备卡片列表 - 一列布局 -->
-    <div v-else class="device-grid">
+    <!-- 设备卡片列表 - 可拖拽排序 -->
+    <VueDraggable
+      v-else
+      v-model="devices"
+      class="device-grid"
+      ghost-class="ghost-card"
+      :animation="200"
+      @end="onDragEnd"
+    >
       <div
         v-for="device in devices"
         :key="device.id"
         class="device-card"
-        :class="{ 'device-offline': isRunning.find(item => item.id === device.id)?.status }"
+        :class="{ 'device-inuse': !isRunning.find(item => item.id === device.id)?.status }"
       >
         <!-- 设备头部 -->
         <div class="device-header">
@@ -217,11 +272,11 @@ const startOrEnd = (did: string) => {
             <span
               :class="[
                 'status-dot',
-                isRunning.find(item => item.id === device.id)?.status ? 'status-offline' : 'status-online'
+                isRunning.find(item => item.id === device.id)?.status ? 'status-online' : 'status-busy'
               ]"
             ></span>
             <span class="status-text">
-              {{ isRunning.find(item => item.id === device.id)?.status ? '待机中' : '运行中' }}
+              {{ isRunning.find(item => item.id === device.id)?.status ? '空闲中' : '使用中' }}
             </span>
           </div>
         </div>
@@ -251,7 +306,7 @@ const startOrEnd = (did: string) => {
           </Button>
         </div>
       </div>
-    </div>
+    </VueDraggable>
   </div>
 </template>
 
@@ -263,13 +318,21 @@ const startOrEnd = (did: string) => {
 .refresh-bar {
   margin-bottom: 16px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.hitokoto-container {
+  flex: 1;
+  text-align: left;
 }
 
 .refresh-btn {
   border-radius: 8px;
   color: #1E90FF;
   border-color: #1E90FF;
+  flex-shrink: 0;
 }
 
 .refresh-btn:hover {
@@ -295,11 +358,19 @@ const startOrEnd = (did: string) => {
   margin: 0;
 }
 
-/* 设备卡片列表 - 一列布局 */
+/* 设备卡片列表 - 可拖拽 */
 .device-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* 拖拽时的占位符样式 */
+.ghost-card {
+  opacity: 0.5;
+  background: #f0f9ff;
+  border: 2px dashed #1E90FF;
+  border-radius: 16px;
 }
 
 /* 设备卡片 */
@@ -309,9 +380,19 @@ const startOrEnd = (did: string) => {
   padding: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #f0f0f0;
+  cursor: grab;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
-.device-card.device-offline {
+.device-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.device-card:active {
+  cursor: grabbing;
+}
+
+.device-card.device-inuse {
   opacity: 0.85;
 }
 
@@ -333,7 +414,7 @@ const startOrEnd = (did: string) => {
   justify-content: center;
 }
 
-.device-card.device-offline .device-icon {
+.device-card.device-inuse .device-icon {
   background: #999;
 }
 
@@ -359,7 +440,7 @@ const startOrEnd = (did: string) => {
   box-shadow: 0 0 8px rgba(82, 196, 26, 0.4);
 }
 
-.status-offline {
+.status-busy {
   background: #faad14;
 }
 

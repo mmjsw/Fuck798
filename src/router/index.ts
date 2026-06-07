@@ -8,6 +8,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/token-login',
+    name: 'TokenLogin',
+    component: () => import('../views/TokenLogin.vue')
+  },
+  {
     path: '/control',
     name: 'Control',
     component: () => import('../views/Control.vue')

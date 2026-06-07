@@ -226,6 +226,11 @@ const login = () => {
       </div>
     </div>
 
+    <!-- Token登录提示 -->
+    <div class="token-login-hint">
+      <router-link to="/token-login" class="token-link">使用 Token 登录</router-link>
+    </div>
+
     <!-- 登录按钮 -->
     <Button
       type="primary"
@@ -341,5 +346,21 @@ const login = () => {
 .login-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.token-login-hint {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.token-link {
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+
+.token-link:hover {
+  color: #1E90FF;
+  text-decoration: underline;
 }
 </style>
