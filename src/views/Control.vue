@@ -78,7 +78,7 @@ const base_url = getBaseUrl();
 }
 
 .header-title {
-  font-size: 18px;
+  font-size: 36px;
   font-weight: 400;
   color: #1a1a2e;
   margin: 0;

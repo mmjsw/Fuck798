@@ -95,7 +95,7 @@ onMounted(() => {
 .hitokoto-text {
   display: block;
   color: #333;
-  font-size: 13px;
+  font-size: 20px;
   line-height: 1.5;
   font-style: italic;
 }
@@ -103,7 +103,7 @@ onMounted(() => {
 .hitokoto-from {
   display: block;
   color: #999;
-  font-size: 11px;
-  margin-top: 2px;
+  font-size: 17px;
+  margin-top: 3px;
 }
 </style>

@@ -477,7 +477,7 @@ const startOrEnd = (did: string) => {
 }
 
 .device-name {
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 400;
   color: #1a1a2e;
   margin: 0 0 6px 0;
