@@ -397,15 +397,15 @@ const startOrEnd = (did: string) => {
 }
 
 .device-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
 .device-card {
   background: white;
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 15px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #f0f0f0;
   transition: box-shadow 0.2s;
@@ -423,13 +423,13 @@ const startOrEnd = (did: string) => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .device-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: #1E90FF;
   display: flex;
   align-items: center;
@@ -441,7 +441,7 @@ const startOrEnd = (did: string) => {
 }
 
 .icon {
-  font-size: 24px;
+  font-size: 20px;
   color: white;
 }
 
@@ -473,32 +473,32 @@ const startOrEnd = (did: string) => {
 }
 
 .device-info {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .device-name {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 400;
   color: #1a1a2e;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
 }
 
 .device-address {
-  font-size: 12px;
+  font-size: 10px;
   color: #999;
   margin: 0;
   line-height: 1.4;
 }
 
 .device-remark {
-  margin-bottom: 12px;
-  padding: 8px 0;
+  margin-bottom: 10px;
+  padding: 6px 0;
   border-top: 1px dashed #f0f0f0;
 }
 
 .remark-display {
   cursor: pointer;
-  padding: 4px 0;
+  padding: 2px 0;
   transition: opacity 0.2s;
 }
 
@@ -508,27 +508,27 @@ const startOrEnd = (did: string) => {
 
 .remark-text {
   color: #8A2BE2;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
 }
 
 .remark-add {
   color: #999;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .remark-edit {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .remark-input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border: 1px solid #e8e8e8;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 12px;
   outline: none;
   box-sizing: border-box;
 }
@@ -540,20 +540,20 @@ const startOrEnd = (did: string) => {
 
 .remark-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
 }
 
 .device-action {
-  padding-top: 14px;
+  padding-top: 10px;
   border-top: 1px solid #f0f0f0;
 }
 
 .action-btn {
-  height: 44px;
+  height: 36px;
   border-radius: 10px;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .action-btn:not(.ant-btn-primary) {
