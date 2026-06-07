@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Button } from 'ant-design-vue';
 import { PoweroffOutlined, ThunderboltOutlined, EditOutlined } from '@ant-design/icons-vue';
@@ -69,12 +69,10 @@ const isRunning = ref<DeviceStatus[]>([]);
 const loading = ref(false);
 const refreshing = ref(false);
 
-// 备注相关
 const remarks = ref<Record<string, string>>({});
 const editingDeviceId = ref<string | null>(null);
 const editingRemark = ref('');
 
-// 加载备注�?localStorage
 const loadRemarks = () => {
   const saved = localStorage.getItem('deviceRemarks');
   if (saved) {
@@ -86,28 +84,23 @@ const loadRemarks = () => {
   }
 };
 
-// 保存备注�?localStorage
 const saveRemarks = () => {
   localStorage.setItem('deviceRemarks', JSON.stringify(remarks.value));
 };
 
-// 获取设备备注
 const getDeviceRemark = (deviceId: string): string => {
   return remarks.value[deviceId] || '';
 };
 
-// 检查是否有备注
 const hasRemark = (deviceId: string): boolean => {
   return !!remarks.value[deviceId];
 };
 
-// 开始编辑备�?
 const startEditRemark = (deviceId: string) => {
   editingDeviceId.value = deviceId;
   editingRemark.value = remarks.value[deviceId] || '';
 };
 
-// 保存备注
 const saveRemark = (deviceId: string) => {
   remarks.value[deviceId] = editingRemark.value.trim();
   saveRemarks();
@@ -115,31 +108,25 @@ const saveRemark = (deviceId: string) => {
   editingRemark.value = '';
 };
 
-// 取消编辑
 const cancelEditRemark = () => {
   editingDeviceId.value = null;
   editingRemark.value = '';
 };
 
-
-
-// 自动刷新定时�?
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   loadDevices();
   loadRemarks();
   
-  // �?秒自动刷�?
   refreshTimer = setInterval(() => {
     if (!loading.value) {
-      loadDevices(false); // 不显示刷新按钮的加载状�?
+      loadDevices(false);
     }
   }, 5000);
 });
 
 onUnmounted(() => {
-  // 清理定时�?
   if (refreshTimer) {
     clearInterval(refreshTimer);
   }
@@ -226,11 +213,11 @@ const startOrEnd = (did: string) => {
             item.id === did ? { ...item, status: false } : item
           );
         } else {
-          alert('设备可能已经开启或者开启失�?);
+          alert('设备可能已经开启或者开启失败');
         }
       })
       .catch(() => {
-        alert('设备开启失�?);
+        alert('设备开启失败');
         loading.value = false;
       });
   } else {
@@ -254,7 +241,7 @@ const startOrEnd = (did: string) => {
             item.id === did ? { ...item, status: true } : item
           );
         } else {
-          alert('设备可能已经关闭或者关闭失�?);
+          alert('设备可能已经关闭或者关闭失败');
         }
       })
       .catch(() => {
@@ -267,7 +254,6 @@ const startOrEnd = (did: string) => {
 
 <template>
   <div class="device-list">
-    <!-- 刷新按钮和每日一言 -->
     <div class="refresh-bar">
       <div class="hitokoto-container">
         <Hitokoto align="left" />
@@ -277,13 +263,11 @@ const startOrEnd = (did: string) => {
       </Button>
     </div>
 
-    <!-- 空状�?-->
     <div v-if="devices.length === 0 && !refreshing" class="empty-state">
       <div class="empty-icon">📱</div>
       <p class="empty-text">暂无设备</p>
     </div>
 
-    <!-- 设备卡片列表 -->
     <div v-else class="device-grid">
       <div
         v-for="device in devices"
@@ -291,7 +275,6 @@ const startOrEnd = (did: string) => {
         class="device-card"
         :class="{ 'device-inuse': !isRunning.find(item => item.id === device.id)?.status }"
       >
-        <!-- 设备头部 -->
         <div class="device-header">
           <div class="device-icon">
             <ThunderboltOutlined class="icon" />
@@ -304,12 +287,11 @@ const startOrEnd = (did: string) => {
               ]"
             ></span>
             <span class="status-text">
-              {{ isRunning.find(item => item.id === device.id)?.status ? '空闲�? : '使用�? }}
+              {{ isRunning.find(item => item.id === device.id)?.status ? '空闲中' : '使用中' }}
             </span>
           </div>
         </div>
 
-        <!-- 设备信息 -->
         <div class="device-info">
           <h3 class="device-name">{{ device.name }}</h3>
           <p v-if="device.addr?.detail" class="device-address">
@@ -317,7 +299,6 @@ const startOrEnd = (did: string) => {
           </p>
         </div>
 
-        <!-- 备注显示 -->
         <div class="device-remark">
           <template v-if="editingDeviceId === device.id">
             <div class="remark-edit">
@@ -339,7 +320,7 @@ const startOrEnd = (did: string) => {
           <template v-else>
             <div class="remark-display" @click="startEditRemark(device.id)">
               <span v-if="hasRemark(device.id)" class="remark-text">
-                【{{ getDeviceRemark(device.id) }}�?
+                【{{ getDeviceRemark(device.id) }}】
               </span>
               <span v-else class="remark-add">
                 <EditOutlined /> 添加备注
@@ -348,7 +329,6 @@ const startOrEnd = (did: string) => {
           </template>
         </div>
 
-        <!-- 设备控制 -->
         <div class="device-action">
           <Button
             :type="isRunning.find(item => item.id === device.id)?.status ? 'primary' : 'default'"
@@ -361,7 +341,7 @@ const startOrEnd = (did: string) => {
             <template #icon>
               <PoweroffOutlined />
             </template>
-            {{ isRunning.find(item => item.id === device.id)?.status ? '立即开�? : '立即关闭' }}
+            {{ isRunning.find(item => item.id === device.id)?.status ? '立即开启' : '立即关闭' }}
           </Button>
         </div>
       </div>
@@ -400,7 +380,6 @@ const startOrEnd = (did: string) => {
   background: rgba(30, 144, 255, 0.05);
 }
 
-/* 空状�?*/
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -417,14 +396,12 @@ const startOrEnd = (did: string) => {
   margin: 0;
 }
 
-/* 设备卡片列表 */
 .device-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* 设备卡片 */
 .device-card {
   background: white;
   border-radius: 16px;
@@ -442,7 +419,6 @@ const startOrEnd = (did: string) => {
   opacity: 0.85;
 }
 
-/* 设备头部 */
 .device-header {
   display: flex;
   align-items: flex-start;
@@ -496,7 +472,6 @@ const startOrEnd = (did: string) => {
   font-weight: 400;
 }
 
-/* 设备信息 */
 .device-info {
   margin-bottom: 12px;
 }
@@ -515,7 +490,6 @@ const startOrEnd = (did: string) => {
   line-height: 1.4;
 }
 
-/* 备注 */
 .device-remark {
   margin-bottom: 12px;
   padding: 8px 0;
@@ -570,7 +544,6 @@ const startOrEnd = (did: string) => {
   justify-content: flex-end;
 }
 
-/* 设备控制 */
 .device-action {
   padding-top: 14px;
   border-top: 1px solid #f0f0f0;
