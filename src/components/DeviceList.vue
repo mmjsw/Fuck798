@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { Button } from 'ant-design-vue';
 import { PoweroffOutlined, ThunderboltOutlined } from '@ant-design/icons-vue';
-import { deserializeFromLocalStorage, serializeToLocalStorage } from '../utils/Serializable';
+import { deserializeFromLocalStorage } from '../utils/Serializable';
 import router from '../router';
 import { VueDraggable } from 'vue-draggable-plus';
 import Hitokoto from './Hitokoto.vue';
