@@ -119,7 +119,7 @@ onMounted(() => {
 
 .title {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 400;
   color: #1a1a2e;
   margin: 0 0 6px 0;
 }

@@ -194,7 +194,7 @@ const login = () => {
 
 .title {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 400;
   color: #1a1a2e;
   margin: 0 0 6px 0;
 }
@@ -221,7 +221,7 @@ const login = () => {
 .form-label {
   display: block;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   color: #333;
   margin-bottom: 8px;
 }
@@ -260,7 +260,7 @@ const login = () => {
   height: 48px;
   border-radius: 10px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   background: #1E90FF;
   border: none;
 }

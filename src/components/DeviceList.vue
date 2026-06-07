@@ -74,7 +74,7 @@ const remarks = ref<Record<string, string>>({});
 const editingDeviceId = ref<string | null>(null);
 const editingRemark = ref('');
 
-// 加载备注从 localStorage
+// 加载备注�?localStorage
 const loadRemarks = () => {
   const saved = localStorage.getItem('deviceRemarks');
   if (saved) {
@@ -86,7 +86,7 @@ const loadRemarks = () => {
   }
 };
 
-// 保存备注到 localStorage
+// 保存备注�?localStorage
 const saveRemarks = () => {
   localStorage.setItem('deviceRemarks', JSON.stringify(remarks.value));
 };
@@ -101,7 +101,7 @@ const hasRemark = (deviceId: string): boolean => {
   return !!remarks.value[deviceId];
 };
 
-// 开始编辑备注
+// 开始编辑备�?
 const startEditRemark = (deviceId: string) => {
   editingDeviceId.value = deviceId;
   editingRemark.value = remarks.value[deviceId] || '';
@@ -123,23 +123,23 @@ const cancelEditRemark = () => {
 
 
 
-// 自动刷新定时器
+// 自动刷新定时�?
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   loadDevices();
   loadRemarks();
   
-  // 每5秒自动刷新
+  // �?秒自动刷�?
   refreshTimer = setInterval(() => {
     if (!loading.value) {
-      loadDevices(false); // 不显示刷新按钮的加载状态
+      loadDevices(false); // 不显示刷新按钮的加载状�?
     }
   }, 5000);
 });
 
 onUnmounted(() => {
-  // 清理定时器
+  // 清理定时�?
   if (refreshTimer) {
     clearInterval(refreshTimer);
   }
@@ -226,11 +226,11 @@ const startOrEnd = (did: string) => {
             item.id === did ? { ...item, status: false } : item
           );
         } else {
-          alert('设备可能已经开启或者开启失败');
+          alert('设备可能已经开启或者开启失�?);
         }
       })
       .catch(() => {
-        alert('设备开启失败');
+        alert('设备开启失�?);
         loading.value = false;
       });
   } else {
@@ -254,7 +254,7 @@ const startOrEnd = (did: string) => {
             item.id === did ? { ...item, status: true } : item
           );
         } else {
-          alert('设备可能已经关闭或者关闭失败');
+          alert('设备可能已经关闭或者关闭失�?);
         }
       })
       .catch(() => {
@@ -277,7 +277,7 @@ const startOrEnd = (did: string) => {
       </Button>
     </div>
 
-    <!-- 空状态 -->
+    <!-- 空状�?-->
     <div v-if="devices.length === 0 && !refreshing" class="empty-state">
       <div class="empty-icon">📱</div>
       <p class="empty-text">暂无设备</p>
@@ -304,7 +304,7 @@ const startOrEnd = (did: string) => {
               ]"
             ></span>
             <span class="status-text">
-              {{ isRunning.find(item => item.id === device.id)?.status ? '空闲中' : '使用中' }}
+              {{ isRunning.find(item => item.id === device.id)?.status ? '空闲�? : '使用�? }}
             </span>
           </div>
         </div>
@@ -339,7 +339,7 @@ const startOrEnd = (did: string) => {
           <template v-else>
             <div class="remark-display" @click="startEditRemark(device.id)">
               <span v-if="hasRemark(device.id)" class="remark-text">
-                【{{ getDeviceRemark(device.id) }}】
+                【{{ getDeviceRemark(device.id) }}�?
               </span>
               <span v-else class="remark-add">
                 <EditOutlined /> 添加备注
@@ -361,7 +361,7 @@ const startOrEnd = (did: string) => {
             <template #icon>
               <PoweroffOutlined />
             </template>
-            {{ isRunning.find(item => item.id === device.id)?.status ? '立即开启' : '立即关闭' }}
+            {{ isRunning.find(item => item.id === device.id)?.status ? '立即开�? : '立即关闭' }}
           </Button>
         </div>
       </div>
@@ -400,7 +400,7 @@ const startOrEnd = (did: string) => {
   background: rgba(30, 144, 255, 0.05);
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -493,7 +493,7 @@ const startOrEnd = (did: string) => {
 .status-text {
   font-size: 12px;
   color: #666;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* 设备信息 */
@@ -503,7 +503,7 @@ const startOrEnd = (did: string) => {
 
 .device-name {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   color: #1a1a2e;
   margin: 0 0 6px 0;
 }
@@ -535,7 +535,7 @@ const startOrEnd = (did: string) => {
 .remark-text {
   color: #8A2BE2;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .remark-add {
@@ -579,7 +579,7 @@ const startOrEnd = (did: string) => {
 .action-btn {
   height: 44px;
   border-radius: 10px;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 14px;
 }
 

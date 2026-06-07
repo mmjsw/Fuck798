@@ -257,7 +257,7 @@ const login = () => {
 .form-label {
   display: block;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   color: #333;
   margin-bottom: 8px;
 }
@@ -316,7 +316,7 @@ const login = () => {
   background: #1E90FF;
   border: none;
   color: white;
-  font-weight: 500;
+  font-weight: 400;
   flex-shrink: 0;
 }
 
@@ -334,7 +334,7 @@ const login = () => {
   height: 48px;
   border-radius: 10px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   background: #1E90FF;
   border: none;
 }

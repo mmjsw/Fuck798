@@ -79,7 +79,7 @@ const base_url = getBaseUrl();
 
 .header-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 400;
   color: #1a1a2e;
   margin: 0;
 }
