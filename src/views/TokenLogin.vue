@@ -140,7 +140,7 @@ const login = () => {
           <p class="footer-line1">所有数据均保存在浏览器，请放心使用</p>
           <div class="footer-line2">
             <span class="author-text">Created By MMJSW</span>
-            <a href="" target="_blank" class="github-link">
+            <a href="https://github.com/mmjsw/Fuck798" target="_blank" class="github-link">
               <GithubOutlined class="github-icon" />
             </a>
           </div>
