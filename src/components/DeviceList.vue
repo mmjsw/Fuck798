@@ -198,6 +198,7 @@ const startOrEnd = (did: string) => {
       headers: {
         'Connection': 'keep-alive',
         'ApplicationType': '1,1',
+        'VersionCode': '3.1.8',
         'Accept': '*/*',
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
         'Authorization': tk.value,
@@ -226,6 +227,7 @@ const startOrEnd = (did: string) => {
       headers: {
         'Connection': 'keep-alive',
         'ApplicationType': '1,1',
+        'VersionCode': '3.1.8',
         'Accept': '*/*',
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
         'Authorization': tk.value,
